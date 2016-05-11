@@ -20,7 +20,6 @@ void processes() {
 		}*/
 		cout << "Parent: " << pid << endl;
 	}
-
 }
 
 int main () {
