@@ -6,7 +6,7 @@
 
 using namespace std;
 
-int main () {
+void processes() {
 	pid_t pid = fork();
 	if (pid == -1) {
 		perror("fork");
@@ -20,5 +20,10 @@ int main () {
 		}*/
 		cout << "Parent: " << pid << endl;
 	}
-	return 0;
+
+}
+
+int main () {
+		processes();
+		return 0;
 }
