@@ -6,6 +6,8 @@
 
 using namespace std;
 
+void parse {}
+
 int main () {
 	pid_t pid = fork();
 	if (pid == -1) {
