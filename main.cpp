@@ -7,38 +7,7 @@
 #include <cstdlib>
 using namespace std;
 
-/*void execute(string command) {
-	
-	pid_t pid = fork(); //creates child process
-	int status = 0;
-	if (pid == -1) {
-		perror("fork");
-	}
-	cout << "String command is: " << command << endl;
-	if (pid == 0) {
-		//char* path = "/bin/";
-		cout << "Child: " << pid << endl;
-		//convert string to char* to pass into exec()
-		char* cmd = new char[command.length() + 1];
-		strcpy(cmd, command.c_str());
-		if(execvp(cmd,path) == -1) { //calls execvp WHILE checking to see if it = -1
-			perror("exec");
-			exit(-1);
-		}
-	}
-	else { //Otherwise, the process is a parent
-		cout << "This is a parent process" << endl;
-		waitpid(pid, &status, 0); //wait for the child process to finish
-		cout << "Process returned" << WEXITSTATUS(status) << endl;
-	}
-	
-	if (pid > 0) {
-		if (wait(0) == -1) {//waits for child to finish
-			perror("wait");
-		}
-		cout << "Parent: " << pid << endl;
-	}
-}*/
+
 
 void execute(char** commandArr) {
 	
@@ -60,7 +29,7 @@ void execute(char** commandArr) {
 
 }
 
-void parse_string(string &commandLine, char** cmdArray) { 
+void parse_string(string commandLine, char** cmdArray) { 
 	char* token; //split command into separate strings
 	char* cmd = new char[commandLine.length() + 1];
 	strcpy(cmd, commandLine.c_str());
