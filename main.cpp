@@ -5,25 +5,28 @@
 #include <sys/wait.h> //used for wait
 #include <string.h>
 #include <cstdlib>
+#include <vector>
 using namespace std;
 
-
-
-bool execute(char** commandArr) {
+bool execute(vector<string>commandArr) {
 	int works = 1;
 	/*if(line == "exit") {
 		exit(0);
 	}*/
-
-	int status = 0;	
+	char* cmdArr[commandArr.size() + 1];
+	int i = 0;
+	for (i = 0; i < static_cast<int>(commandArr.size()); i++) {//convert the vector into a char* array for execvp
+		cmdArr[i] = (char*)commandArr.at(i).c_str();	
+	}
+	cmdArr[commandArr.size()] = NULL; //set last value to NULL for execvp
+	int status = 0;		
 	char fullpath[20] = "/bin/"; //full file path, starts at bin	
-	strcat(fullpath, commandArr[0]); //add the first command to the file path
+	strcat(fullpath, commandArr[0].c_str()); //add the first command to the file path
 	pid_t pid = fork();//split the processes into parent and child
 	if(pid==0) { //if the process is a child
-		int works = execvp(fullpath,commandArr); // to check if execvp passes or fails	
+		int works = execvp(fullpath,cmdArr); // to check if execvp passes or fails	
 	}
 	else { //Otherwise, the process is a parent
-		//wait(NULL);
 		waitpid(pid, &status, 0); //wait for the child process to finish
 	}
 	if (works == -1) {
@@ -35,20 +38,20 @@ bool execute(char** commandArr) {
 
 }
 
-void parse_string(string commandLine, char** cmdArray) {//char** is an array of char* 
+void parse_string(string commandLine, vector<string>&cmdArray) {
+	
 	char* token; //split command into separate strings
 	char* cmd = new char[commandLine.length() + 1];
 	strcpy(cmd, commandLine.c_str()); //converts string to char*
 	token = strtok(cmd, " "); //tokenize first part of string
 	int i = 0;
 	for (; token != NULL; i++) {
-		cmdArray[i] = token;
+		string tokenString = string(token);
+		cmdArray.push_back(tokenString);
 		token = strtok(NULL, " ");
 	}
-	cmdArray[i] = NULL; //set the last value to NULL for execvp
-	
-	
 } 
+
 void printPrompt() {
 	char* user = getlogin();
 	char host[BUFSIZ]; //creates a host name with buffer size
@@ -63,8 +66,9 @@ void printPrompt() {
 
 int main () {
 		string cmdLine;
-		char* cmdArr[100]; //will hold an array of parsed commands
+		
 		while( cmdLine != "exit") {
+			vector<string>cmdArr;
 			printPrompt();
 			getline(cin, cmdLine);
 			parse_string(cmdLine, cmdArr);
