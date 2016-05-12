@@ -9,8 +9,8 @@ using namespace std;
 
 
 
-void execute(char** commandArr) {
-	
+bool execute(char** commandArr) {
+	int works = 1;
 	/*if(line == "exit") {
 		exit(0);
 	}*/
@@ -20,12 +20,18 @@ void execute(char** commandArr) {
 	strcat(fullpath, commandArr[0]); //add the first command to the file path
 	int pid = fork();
 	if(pid==0) { //if the process is a child
-		execvp(fullpath,commandArr);
+		int works = execvp(fullpath,commandArr); // to check if execvp passes or fails
 	}
 	else { //Otherwise, the process is a parent
 		wait(NULL);
 		//waitpid(pid, &status, 0); //wait for the child process to finish
 	}
+	if (works == -1) {
+		return false;
+	}
+	else {
+		return true;	
+	}	
 
 }
 
@@ -35,11 +41,13 @@ void parse_string(string commandLine, char** cmdArray) {
 	strcpy(cmd, commandLine.c_str());
 	token = strtok(cmd, " ");
 	int i = 0;
+	cout << token << endl;
 	for (; token != NULL; i++) {
 		cmdArray[i] = token;
 		token = strtok(NULL, " ");
 	}
 	cmdArray[i] = NULL;
+	
 	
 } 
 void printPrompt() {
