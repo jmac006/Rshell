@@ -24,7 +24,11 @@ bool execute(vector<string>commandArr) {
 	strcat(fullpath, commandArr[0].c_str()); //add the first command to the file path
 	pid_t pid = fork();//split the processes into parent and child
 	if(pid==0) { //if the process is a child
-		int works = execvp(fullpath,cmdArr); // to check if execvp passes or fails	
+		int exec = execvp(fullpath,cmdArr); // to check if execvp passes or fails	
+		if (exec == -1) { //execvp failed 
+			perror("exec");
+			exit(-1);
+		}
 	}
 	else { //Otherwise, the process is a parent
 		waitpid(pid, &status, 0); //wait for the child process to finish
@@ -46,10 +50,15 @@ void parse_string(string commandLine, vector<string>&cmdArray) {
 	token = strtok(cmd, " "); //tokenize first part of string
 	int i = 0;
 	for (; token != NULL; i++) {
+		if (token == NULL) { //break out of for loop if there's an empty token
+			break;
+		}
 		string tokenString = string(token);
+		cout << "Token is: " << tokenString << endl;
 		cmdArray.push_back(tokenString);
 		token = strtok(NULL, " ");
 	}
+	
 } 
 
 void printPrompt() {
@@ -64,15 +73,38 @@ void printPrompt() {
 	}
 }
 
+bool isConnector(string s) {
+	if (s == "||" || s== "&&" || s == ";" || s == "#") {
+		return true;
+	}
+	return false;	
+}
+
 int main () {
 		string cmdLine;
-		
-		while( cmdLine != "exit") {
-			vector<string>cmdArr;
+		bool hasExecuted = true;	
+		while( cmdLine != "exit") {	
+			vector<string>cmdArr; //holds the whole command line (parsed)
+			vector<string>command; //holds individual commands to run in execute() function
+			
 			printPrompt();
 			getline(cin, cmdLine);
 			parse_string(cmdLine, cmdArr);
-			execute(cmdArr); //execute the list of commands
+			for (int i = 0; i < cmdArr.size(); i++) {
+				if (!isConnector(cmdArr.at(i))) {
+					command.push_back(cmdArr.at(i)); //copy the command from cmdArr to command vector if the command is not a connector
+				}
+				else { //if it finds a connector, break the loop so we only have the first command in our vector
+					break;
+				}
+			}
+			hasExecuted = execute(command); //execute the first command
+			cout << "Command size is: " << command.size() << endl;
+			cout << "Individual command contains: " << endl;
+			for (unsigned i = 0; i < command.size(); i++) {
+				cout << command.at(i) << endl;
+			}
+			//execute(cmdArr); //execute the list of commands
 		}
 		return 0;
 }
