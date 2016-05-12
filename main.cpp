@@ -55,13 +55,15 @@ void printPrompt() {
 }
 
 int main () {
-		char* cmdArr[100]; //will hold an array of parsed commands
-		printPrompt();
-		string cmdLine = "";
-		getline(cin, cmdLine);
-		//cout << cmdLine << endl;
-		//cout << "First parsed string is: " << cmdArr[0] << endl;
-		parse_string(cmdLine, cmdArr);
-		execute(cmdArr); //execute the list of commands
+		string cmdLine;
+		while( cmdLine != "exit") {
+			char* cmdArr[100]; //will hold an array of parsed commands
+			printPrompt();
+			getline(cin, cmdLine);
+			//cout << cmdLine << endl;
+			//cout << "First parsed string is: " << cmdArr[0] << endl;
+			parse_string(cmdLine, cmdArr);
+			execute(cmdArr); //execute the list of commands
+		}
 		return 0;
 }
