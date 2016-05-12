@@ -16,30 +16,30 @@ void execute(char** commandArr) {
 	}*/
 
 	int status = 0;	
-	char fullpath[20] = "/bin/"; //full file path	
+	char fullpath[20] = "/bin/"; //full file path, starts at bin	
 	strcat(fullpath, commandArr[0]); //add the first command to the file path
-	int pid = fork();
+	pid_t pid = fork();//split the processes into parent and child
 	if(pid==0) { //if the process is a child
-		execvp(fullpath,commandArr);
+		execvp(commandArr[0],commandArr);
 	}
 	else { //Otherwise, the process is a parent
-		wait(NULL);
-		//waitpid(pid, &status, 0); //wait for the child process to finish
+		//wait(NULL);
+		waitpid(pid, &status, 0); //wait for the child process to finish
 	}
 
 }
 
-void parse_string(string commandLine, char** cmdArray) { 
+void parse_string(string commandLine, char** cmdArray) {//char** is an array of char* 
 	char* token; //split command into separate strings
 	char* cmd = new char[commandLine.length() + 1];
-	strcpy(cmd, commandLine.c_str());
-	token = strtok(cmd, " ");
+	strcpy(cmd, commandLine.c_str()); //converts string to char*
+	token = strtok(cmd, " "); //tokenize first part of string
 	int i = 0;
-	for (; token != NULL; i++) {
+	for (; token != NULL; i++) { //tokenize rest of string into cmdArray
 		cmdArray[i] = token;
 		token = strtok(NULL, " ");
 	}
-	cmdArray[i] = NULL;
+	cmdArray[i] = NULL; //set the last value to NULL for execvp
 	
 } 
 void printPrompt() {
@@ -61,7 +61,7 @@ int main () {
 		getline(cin, cmdLine);
 		//cout << cmdLine << endl;
 		//cout << "First parsed string is: " << cmdArr[0] << endl;
-		parse_string(cmdLine, cmdArr);
+		parse_string(cmdLine, cmdArr); //parses string and populates cmdArr
 		execute(cmdArr); //execute the list of commands
 		return 0;
 }
