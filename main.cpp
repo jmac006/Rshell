@@ -6,6 +6,7 @@
 #include <string.h>
 #include <cstdlib>
 #include <vector>
+
 using namespace std;
 
 bool execute(vector<string>commandArr) {
@@ -54,7 +55,7 @@ void parse_string(string commandLine, vector<string>&cmdArray) {
 			break;
 		}
 		string tokenString = string(token);
-		cout << "Token is: " << tokenString << endl;
+		//cout << "Token is: " << tokenString << endl;
 		cmdArray.push_back(tokenString);
 		token = strtok(NULL, " ");
 	}
@@ -83,14 +84,19 @@ bool isConnector(string s) {
 int main () {
 		string cmdLine;
 		bool hasExecuted = true;	
-		while( cmdLine != "exit") {	
+		while(cmdLine != "exit") {	
 			vector<string>cmdArr; //holds the whole command line (parsed)
 			vector<string>command; //holds individual commands to run in execute() function
-			
 			printPrompt();
 			getline(cin, cmdLine);
+			if (cmdLine == "exit") { //exits with command "exit"
+				exit(0);
+			}
+
 			parse_string(cmdLine, cmdArr);
+			int index = 0;
 			for (int i = 0; i < cmdArr.size(); i++) {
+				index = i;
 				if (!isConnector(cmdArr.at(i))) {
 					command.push_back(cmdArr.at(i)); //copy the command from cmdArr to command vector if the command is not a connector
 				}
@@ -99,12 +105,35 @@ int main () {
 				}
 			}
 			hasExecuted = execute(command); //execute the first command
-			cout << "Command size is: " << command.size() << endl;
-			cout << "Individual command contains: " << endl;
-			for (unsigned i = 0; i < command.size(); i++) {
-				cout << command.at(i) << endl;
+			command.clear(); //clear the first command to read the other commands
+			for (int i = index; i < cmdArr.size(); i++) { //start where we left off	
+				command.push_back(cmdArr.at(i));
+				
+				if(isConnector(cmdArr.at(i)) && command.size() > 1) { //if there's more commands and the next command is a connector
+					if(command.at(0) == "||") {
+						command.erase(command.begin()); //delete the connector
+						if (hasExecuted == false) { //if the previous command did not execute, run this command
+							hasExecuted = execute(command);
+						}
+						command.clear();
+					}
+					else if (command.at(0) == "&&") {
+						
+						command.erase(command.begin()); //remove connector from command
+						if (hasExecuted == true) {
+							hasExecuted = execute(command);
+						}
+						command.clear();
+					}
+				}
 			}
-			//execute(cmdArr); //execute the list of commands
+			if (command.size() != 0 && command.at(0) == "&&") {
+				command.erase(command.begin()); //delete connector
+				if (hasExecuted == true) {
+					hasExecuted = execute(command);
+				}
+			}
+			
 		}
 		return 0;
 }
