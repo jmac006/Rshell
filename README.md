@@ -8,11 +8,11 @@ This project is a simple command shell similar to the linux terminal. It is capa
 
 Installation
 --------------
-1) To install, clone this project at: https://github.com/jmac006/rshell.git. 
-2) After cloning, change the directory into rshell (cd rshell). 
-3) git checkout hw2 (tag is hw2)
-4) Make
-5) ./bin/rshell
+1. To install, clone this project at: https://github.com/jmac006/rshell.git. 
+2. After cloning, change the directory into rshell (cd rshell). 
+3. git checkout hw2 (tag is hw2)
+4. Make
+5. ./bin/rshell
 
 
 Bugs/Known Issues/Limitations
