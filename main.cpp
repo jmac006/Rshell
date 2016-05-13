@@ -57,21 +57,21 @@ void parse_string(string commandLine, vector<string>&cmdArray) {
 		}
 		string tokenString = string(token);
 		//cout << "Token is: " << tokenString << endl;
-		if(!isConnector(tokenString)) {
-			if (hasSemi(tokenString)) {
+		if(!isConnector(tokenString)) { //if it a just a connector without any words attached  go straight to push_back
+			if (hasSemi(tokenString)) {//if there is a semicolon attached enter loop
 				string semicolon = ";";
-				tokenString.erase(tokenString.begin() + tokenString.size() -1 );
-				cmdArray.push_back(tokenString);
-				cmdArray.push_back(semicolon);
+				tokenString.erase(tokenString.begin() + tokenString.size() -1 ); //remove the semicolon at the end of word
+				cmdArray.push_back(tokenString); // push back word without semicolon
+				cmdArray.push_back(semicolon);// push back semi colon as its own string
 			}
-			else if(hasHash(tokenString)) {
+			else if(hasHash(tokenString)) { //if there is a hash enter loop
 				string hash = "#";
-				tokenString.erase(tokenString.begin());
-				cmdArray.push_back(hash);
-				cmdArray.push_back(tokenString);
+				tokenString.erase(tokenString.begin()); // remove hashtag located at front of string
+				cmdArray.push_back(hash); // push back has as its own string
+				cmdArray.push_back(tokenString); // push back word 
 			}
-			else{
-					cmdArray.push_back(tokenString);
+			else{ 
+					cmdArray.push_back(tokenString); // if it does not contain semi or hash push back word
 			}
 		}
 		
