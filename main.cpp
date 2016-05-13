@@ -10,10 +10,6 @@
 using namespace std;
 
 bool execute(vector<string>commandArr) {
-	int works = 1;
-	/*if(line == "exit") {
-		exit(0);
-	}*/
 	char* cmdArr[commandArr.size() + 1];
 	int i = 0;
 	for (i = 0; i < static_cast<int>(commandArr.size()); i++) {//convert the vector into a char* array for execvp
@@ -27,20 +23,15 @@ bool execute(vector<string>commandArr) {
 	if(pid==0) { //if the process is a child
 		int exec = execvp(fullpath,cmdArr); // to check if execvp passes or fails	
 		if (exec == -1) { //execvp failed 
+			return false;
 			perror("exec");
 			exit(-1);
 		}
 	}
 	else { //Otherwise, the process is a parent
 		waitpid(pid, &status, 0); //wait for the child process to finish
-	}
-	if (works == -1) {
-		return false;
-	}
-	else {
-		return true;	
 	}	
-
+	return true;
 }
 
 void parse_string(string commandLine, vector<string>&cmdArray) {
