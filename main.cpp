@@ -10,9 +10,11 @@
 using namespace std;
 
 bool execute(vector<string>commandArr) {
-	if (commandArr.at(1).at(0) == '\"'||commandArr.at(1).at(0) ==  '\'') {
+	if(commandArr.size() > 1){
+		if (commandArr.at(1).at(0) == '\"'||commandArr.at(1).at(0) ==  '\'') {
 			commandArr.at(1).erase(commandArr.at(1).begin());
 			commandArr.at(commandArr.size()-1).erase(commandArr.at(commandArr.size()-1).begin() + commandArr.at(commandArr.size()-1).size()-1);
+		}
 	}
 	char* cmdArr[commandArr.size() + 1];
 	int i = 0;
@@ -75,6 +77,7 @@ bool isConnector(string s) {
 	}
 	return false;	
 }
+
 
 int main () {
 		string cmdLine;
