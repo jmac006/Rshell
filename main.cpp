@@ -10,6 +10,10 @@
 using namespace std;
 
 bool execute(vector<string>commandArr) {
+	if (commandArr.at(1).at(0) == '\"'||commandArr.at(1).at(0) ==  '\'') {
+			commandArr.at(1).erase(commandArr.at(1).begin());
+			commandArr.at(commandArr.size()-1).erase(commandArr.at(commandArr.size()-1).begin() + commandArr.at(commandArr.size()-1).size()-1);
+	}
 	char* cmdArr[commandArr.size() + 1];
 	int i = 0;
 	for (i = 0; i < static_cast<int>(commandArr.size()); i++) {//convert the vector into a char* array for execvp
