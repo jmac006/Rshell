@@ -143,6 +143,9 @@ int main () {
 					break;
 				}
 			}
+			if (cmdArr.at(index) == ";" && cmdArr.at(index) == cmdArr.at(cmdArr.size() -1)) { // chech for colon after first command
+							cmdArr.erase(cmdArr.begin() + index);
+			}
 			hasExecuted = execute(command); //executes the first command
 			command.clear(); //clear the first command to read the other commands
 
@@ -164,7 +167,7 @@ int main () {
 					else if(command.at(0)== ";") {
 						i--;
 						command.erase(command.begin()); //remove connector from command
-						//command.pop_back();
+						command.pop_back();
 						hasExecuted = execute(command);
 						command.clear();
 					}
