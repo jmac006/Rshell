@@ -39,6 +39,9 @@ bool execute(vector<string>commandArr) {
 	}	
 	return true;
 }
+bool hasSemi(string s);
+bool hasHash(string s);
+bool isConnector(string s);
 
 void parse_string(string commandLine, vector<string>&cmdArray) {
 	
@@ -48,12 +51,33 @@ void parse_string(string commandLine, vector<string>&cmdArray) {
 	token = strtok(cmd, " "); //tokenize first part of string
 	int i = 0;
 	for (i = 0; token != NULL; i++) {
+
 		if (token == NULL) { //break out of for loop if there's an empty token
 			break;
 		}
 		string tokenString = string(token);
 		//cout << "Token is: " << tokenString << endl;
-		cmdArray.push_back(tokenString);
+		if(!isConnector(tokenString)) {
+			if (hasSemi(tokenString)) {
+				string semicolon = ";";
+				tokenString.erase(tokenString.begin() + tokenString.size() -1 );
+				cmdArray.push_back(tokenString);
+				cmdArray.push_back(semicolon);
+			}
+			else if(hasHash(tokenString)) {
+				string hash = "#";
+				tokenString.erase(tokenString.begin());
+				cmdArray.push_back(hash);
+				cmdArray.push_back(tokenString);
+			}
+			else{
+					cmdArray.push_back(tokenString);
+			}
+		}
+		
+		else{	
+			cmdArray.push_back(tokenString);
+			}
 		token = strtok(NULL, " ");
 	}
 	
@@ -78,6 +102,23 @@ bool isConnector(string s) {
 	return false;	
 }
 
+bool hasSemi(string s){ //checks for semicolon attached to a word;
+	for(int i = 0; i < s.size(); ++i){
+		if(s.at(i) == ';'){
+				return true; //return position of semi
+		}
+	}
+	return false; // if not found return -1
+}
+
+bool hasHash(string s){
+	for(int i = 0; i < s.size(); ++i){
+			if(s.at(i) == '#') {
+					return true;
+			}
+	}
+	return false;
+}
 
 int main () {
 		string cmdLine;
@@ -109,6 +150,7 @@ int main () {
 			for (int i = index; i < cmdArr.size(); i++) { //start where we left off, only executes when there is two connectors in between a command
 				command.push_back(cmdArr.at(i));
 				
+				
 				if(isConnector(cmdArr.at(i)) && command.size() > 1) { //if there's more commands and the next command is a connector
 					if (command.at(0) == "&&") {
 						i--; //decrement i to include next connector
@@ -119,10 +161,10 @@ int main () {
 						}
 						command.clear();
 					}
-					else if(command.at(0) == ";") {
+					else if(command.at(0)== ";") {
 						i--;
 						command.erase(command.begin()); //remove connector from command
-						command.pop_back();
+						//command.pop_back();
 						hasExecuted = execute(command);
 						command.clear();
 					}
