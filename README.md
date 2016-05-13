@@ -1,4 +1,3 @@
-# Assignment-2
 Assignment 2: RSHELL
 ====================
 
@@ -8,4 +7,8 @@ This project is a simple command shell similar to the linux terminal. It is capa
 
 Installation
 --------------
-To install, clone this project at: https://github.com/jmac006/Assignment-2.git. 
+To install, clone this project at: https://github.com/jmac006/rshell.git 
+
+Bugs/Known Issues/Limitations
+------------------------------
+
