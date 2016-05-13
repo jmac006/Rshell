@@ -144,7 +144,7 @@ int main () {
 				}
 			}
 			if (cmdArr.at(index) == ";" && cmdArr.at(index) == cmdArr.at(cmdArr.size() -1)) { // chech for colon after first command
-							cmdArr.erase(cmdArr.begin() + index);
+							cmdArr.erase(cmdArr.begin() + index);//here
 			}
 			hasExecuted = execute(command); //executes the first command
 			command.clear(); //clear the first command to read the other commands
