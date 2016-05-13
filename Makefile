@@ -1,5 +1,5 @@
 COMPILE = g++
-FLAGS = -Werror -ansi
+FLAGS = -Werror -Wall -ansi
 
 all: clean
 	mkdir ./bin

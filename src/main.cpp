@@ -10,6 +10,9 @@
 using namespace std;
 
 bool execute(vector<string>commandArr) {
+	if (commandArr.at(0) == "exit") {
+		exit(0);
+	}
 	if(commandArr.size() > 1){
 		if (commandArr.at(1).at(0) == '\"'||commandArr.at(1).at(0) ==  '\'') { //fixes quotation marks when executing echo
 			commandArr.at(1).erase(commandArr.at(1).begin());
@@ -86,7 +89,7 @@ void parse_string(string commandLine, vector<string>&cmdArray) {
 void printPrompt() {
 	char* user = getlogin();
 	char host[BUFSIZ]; //creates a host name with buffer size
-	int hostID = gethostname(host, 1024);
+	gethostname(host, 1024);
 	if (user == NULL) { //could not find the username
 		cout << "$ ";
 	}
