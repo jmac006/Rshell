@@ -95,21 +95,15 @@ int main () {
 					break;
 				}
 			}
-			hasExecuted = execute(command); //execute the first command
+			hasExecuted = execute(command); //executes the first command
 			command.clear(); //clear the first command to read the other commands
+
+			//deals with cases when there is two connectors and a command in between
 			for (int i = index; i < cmdArr.size(); i++) { //start where we left off, only executes when there is two connectors in between a command
 				command.push_back(cmdArr.at(i));
 				
 				if(isConnector(cmdArr.at(i)) && command.size() > 1) { //if there's more commands and the next command is a connector
-					if(command.at(0) == "||") {
-						i--; //decrement i to include next connector
-						command.erase(command.begin()); //delete the connector
-						if (hasExecuted == false) { //if the previous command did not execute, run this command
-							hasExecuted = execute(command);
-						}
-						command.clear();
-					}
-					else if (command.at(0) == "&&") {
+					if (command.at(0) == "&&") {
 						i--; //decrement i to include next connector
 						command.erase(command.begin()); //remove connector from command
 						command.pop_back(); //remove connector at the end
@@ -118,14 +112,46 @@ int main () {
 						}
 						command.clear();
 					}
+					else if(command.at(0) == ";") {
+						i--;
+						command.erase(command.begin()); //remove connector from command
+						command.pop_back();
+						hasExecuted = execute(command);
+						command.clear();
+					}
+					else if(command.at(0) == "||") {
+						i--; //decrement i to include next connector
+						command.erase(command.begin()); //delete the connector
+						command.pop_back(); //remove connector at end of command
+						if (hasExecuted == false) { //if the previous command did not execute, run this command
+							hasExecuted = execute(command);
+						}
+						command.clear();
+					}
+					else if(command.at(0) == "#" && command.size() == 1) {
+						break; //don't do anything if command has comments
+					}
 				}
 			}
+
+			//Below deals with the commands with no connectors (commands at the end)
 			if (command.size() != 0 && command.at(0) == "&&") {
 				command.erase(command.begin()); //delete connector
 				if (hasExecuted == true) {
 					hasExecuted = execute(command);
 				}
 			}
+			else if (command.size() != 0 && command.at(0) == "||") {
+				command.erase(command.begin());
+				if (hasExecuted == false) {
+					hasExecuted = execute(command);
+				}
+			}
+			else if (command.size() != 0 && command.at(0) == ";") {
+				command.erase(command.begin());
+				hasExecuted = execute(command);
+			}
+
 			
 		}
 		return 0;
