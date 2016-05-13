@@ -11,7 +11,7 @@ using namespace std;
 
 bool execute(vector<string>commandArr) {
 	if(commandArr.size() > 1){
-		if (commandArr.at(1).at(0) == '\"'||commandArr.at(1).at(0) ==  '\'') {
+		if (commandArr.at(1).at(0) == '\"'||commandArr.at(1).at(0) ==  '\'') { //fixes quotation marks when executing echo
 			commandArr.at(1).erase(commandArr.at(1).begin());
 			commandArr.at(commandArr.size()-1).erase(commandArr.at(commandArr.size()-1).begin() + commandArr.at(commandArr.size()-1).size()-1);
 		}
@@ -103,7 +103,7 @@ bool isConnector(string s) {
 }
 
 bool hasSemi(string s){ //checks for semicolon attached to a word;
-	for(int i = 0; i < s.size(); ++i){
+	for(unsigned i = 0; i < s.size(); ++i){
 		if(s.at(i) == ';'){
 				return true; //return position of semi
 		}
@@ -112,7 +112,7 @@ bool hasSemi(string s){ //checks for semicolon attached to a word;
 }
 
 bool hasHash(string s){
-	for(int i = 0; i < s.size(); ++i){
+	for(unsigned i = 0; i < s.size(); ++i){
 			if(s.at(i) == '#') {
 					return true;
 			}
@@ -134,7 +134,7 @@ int main () {
 
 			parse_string(cmdLine, cmdArr);
 			int index = 0;
-			for (int i = 0; i < cmdArr.size(); i++) {
+			for (unsigned i = 0; i < cmdArr.size(); i++) {
 				index = i;
 				if (!isConnector(cmdArr.at(i))) {
 					command.push_back(cmdArr.at(i)); //copy the command from cmdArr to command vector if the command is not a connector
@@ -150,7 +150,7 @@ int main () {
 			command.clear(); //clear the first command to read the other commands
 
 			//deals with cases when there is two connectors and a command in between
-			for (int i = index; i < cmdArr.size(); i++) { //start where we left off, only executes when there is two connectors in between a command
+			for (unsigned i = index; i < cmdArr.size(); i++) { //start where we left off, only executes when there is two connectors in between a command
 				command.push_back(cmdArr.at(i));
 				
 				
@@ -200,6 +200,7 @@ int main () {
 				}
 			}
 			else if (command.size() != 0 && command.at(0) == ";") {
+				//command.erase(command.begin());
 				hasExecuted = execute(command);
 			}
 

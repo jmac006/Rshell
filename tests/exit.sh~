@@ -5,19 +5,16 @@ g++ main.cpp
 echo "hello mate"
 exit
 EOF
-printf "\n"
 
 ../bin/./rshell << 'EOF'
 ls -l && ls -a
 exit
 EOF
-printf "\n"
 
 ../bin/./rshell << 'EOF'
 ls && echo prepare for exit || echo exiting.... now
 exit
 EOF
-printf "\n"
 
 ../bin/./rshell << 'EOF'
 ls;
