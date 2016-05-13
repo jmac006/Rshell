@@ -97,11 +97,12 @@ int main () {
 			}
 			hasExecuted = execute(command); //execute the first command
 			command.clear(); //clear the first command to read the other commands
-			for (int i = index; i < cmdArr.size(); i++) { //start where we left off	
+			for (int i = index; i < cmdArr.size(); i++) { //start where we left off, only executes when there is two connectors in between a command
 				command.push_back(cmdArr.at(i));
 				
 				if(isConnector(cmdArr.at(i)) && command.size() > 1) { //if there's more commands and the next command is a connector
 					if(command.at(0) == "||") {
+						i--; //decrement i to include next connector
 						command.erase(command.begin()); //delete the connector
 						if (hasExecuted == false) { //if the previous command did not execute, run this command
 							hasExecuted = execute(command);
@@ -109,8 +110,9 @@ int main () {
 						command.clear();
 					}
 					else if (command.at(0) == "&&") {
-						
+						i--; //decrement i to include next connector
 						command.erase(command.begin()); //remove connector from command
+						command.pop_back(); //remove connector at the end
 						if (hasExecuted == true) {
 							hasExecuted = execute(command);
 						}
