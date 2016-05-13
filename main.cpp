@@ -50,7 +50,7 @@ void parse_string(string commandLine, vector<string>&cmdArray) {
 	strcpy(cmd, commandLine.c_str()); //converts string to char*
 	token = strtok(cmd, " "); //tokenize first part of string
 	int i = 0;
-	for (; token != NULL; i++) {
+	for (i = 0; token != NULL; i++) {
 		if (token == NULL) { //break out of for loop if there's an empty token
 			break;
 		}
