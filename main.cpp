@@ -200,7 +200,7 @@ int main () {
 				}
 			}
 			else if (command.size() != 0 && command.at(0) == ";") {
-				command.erase(command.begin());
+				//command.erase(command.begin());
 				hasExecuted = execute(command);
 			}
 
