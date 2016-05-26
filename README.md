@@ -1,4 +1,4 @@
-Assignment 2: RSHELL
+Assignment 3: RSHELL
 ====================
 Assignment created by Justin Mac, and Satkaran Tamber
 
@@ -8,9 +8,9 @@ This project is a simple command shell similar to the linux terminal. It is capa
 
 Installation
 --------------
-1. To install, clone this project at: https://github.com/jmac006/rshell.git. 
+1. To install, clone this project at: https://github.com/jmac006/rshell-2.git. 
 2. After cloning, change the directory into rshell (cd rshell). 
-3. git checkout hw2 (tag is hw2)
+3. git checkout hw3 (tag is hw3)
 4. Make
 5. ./bin/rshell
 
