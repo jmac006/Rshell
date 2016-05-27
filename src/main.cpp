@@ -123,73 +123,70 @@ bool hasHash(string s){
 	return false;
 }
 
-int main () {
-		string cmdLine;
-		bool hasExecuted = true;	
-		while(cmdLine != "exit") {	
-			vector<string>cmdArr; //holds the whole command line (parsed)
-			vector<string>command; //holds individual commands to run in execute() function
-			printPrompt();
-			getline(cin, cmdLine);
-			if (cmdLine == "exit") { //exits with command "exit"
-				exit(0);
-			}
+void execCommand(string cmdLine, bool &hasExecuted) {
+	vector<string>cmdArr; //holds the whole command line (parsed)
+	vector<string>command; //holds individual commands to run in execute() function
+	
+	if (cmdLine == "exit") {
+		exit(0);
+	}
 
-			parse_string(cmdLine, cmdArr);
-			int index = 0;
-			for (unsigned i = 0; i < cmdArr.size(); i++) {
-				index = i;
-				if (!isConnector(cmdArr.at(i))) {
-					command.push_back(cmdArr.at(i)); //copy the command from cmdArr to command vector if the command is not a connector
-				}
-				else { //if it finds a connector, break the loop so we only have the first command in our vector
+	parse_string(cmdLine, cmdArr);
+
+	
+	for (unsigned i = 0; i < cmdArr.size(); i++) { //start where we left off, only executes when there is two connectors in between a command
+		command.push_back(cmdArr.at(i));
+
+		/*if (hasHash(cmdArr.at(i))) { //if it is a comment, break out of the loop
+			break;
+		}*/
+		if(isConnector(cmdArr.at(i)) && command.size() > 1) { //if there's more commands and the next command is a connector
+			if(command.at(1) == "#") { //handles comments after connector
 					break;
-				}
-			}
-			if (cmdArr.at(index) == ";" && cmdArr.at(index) == cmdArr.at(cmdArr.size() -1)) { // chech for colon after first command
-							cmdArr.erase(cmdArr.begin() + index);//here
-			}
-			hasExecuted = execute(command); //executes the first command
-			command.clear(); //clear the first command to read the other commands
-
-			//deals with cases when there is two connectors and a command in between
-			for (unsigned i = index; i < cmdArr.size(); i++) { //start where we left off, only executes when there is two connectors in between a command
-				command.push_back(cmdArr.at(i));
-				
-				
-				if(isConnector(cmdArr.at(i)) && command.size() > 1) { //if there's more commands and the next command is a connector
-					if (command.at(0) == "&&") {
-						i--; //decrement i to include next connector
-						command.erase(command.begin()); //remove connector from command
-						command.pop_back(); //remove connector at the end
-						if (hasExecuted == true) {
-							hasExecuted = execute(command);
-						}
-						command.clear();
-					}
-					else if(command.at(0)== ";") {
-						i--;
-						command.erase(command.begin()); //remove connector from command
-						command.pop_back();
-						hasExecuted = execute(command);
-						command.clear();
-					}
-					else if(command.at(0) == "||") {
-						i--; //decrement i to include next connector
-						command.erase(command.begin()); //delete the connector
-						command.pop_back(); //remove connector at end of command
-						if (hasExecuted == false) { //if the previous command did not execute, run this command
-							hasExecuted = execute(command);
-						}
-						command.clear();
-					}
-					else if(command.at(0) == "#" && command.size() == 1) {
-						break; //don't do anything if command has comments
-					}
-				}
 			}
 
-			//Below deals with the commands with no connectors (commands at the end)
+			if (command.at(0) == "&&") {
+				i--; //decrement i to include next connector
+				command.erase(command.begin()); //remove connector from command
+				command.pop_back(); //remove connector at the end
+				if (hasExecuted == true) {
+					hasExecuted = execute(command);
+				}
+				command.clear();
+			}
+
+			else if(command.at(0)== ";") {
+				i--;
+				command.erase(command.begin()); //remove connector from command
+				command.pop_back(); //pop back twice
+				hasExecuted = execute(command);
+				command.clear();
+			}
+			else if(command.at(0) == "||") {
+				i--; //decrement i to include next connector
+				command.erase(command.begin()); //delete the connector
+				command.pop_back(); //remove connector at end of command
+				if (hasExecuted == false) { //if the previous command did not execute, run this command
+					hasExecuted = execute(command);
+				}
+				command.clear();
+			}
+			else if(command.at(0) == "#" && command.size() == 1) {
+
+				break; //don't do anything if command has comments
+			}
+			else if(!isConnector(command.at(0))){
+				i--;
+				command.pop_back(); //remove the connector
+				hasExecuted = execute(command);
+				command.clear();
+			}
+		}
+		else if(i == cmdArr.size()-1) { //if this is the last command
+			if(isConnector(command.at(command.size()-1))) { //if there is a dangling connector at the end remove it
+				command.pop_back();
+				break;
+			}
 			if (command.size() != 0 && command.at(0) == "&&") {
 				command.erase(command.begin()); //delete connector
 				if (hasExecuted == true) {
@@ -203,11 +200,35 @@ int main () {
 				}
 			}
 			else if (command.size() != 0 && command.at(0) == ";") {
-				//command.erase(command.begin());
+				command.erase(command.begin());
+				hasExecuted = execute(command);
+				break;
+			}
+			else if (command.size() != 0 && command.at(0) == "#") {
+				command.erase(command.begin());
+				return;
+			}
+			else {
 				hasExecuted = execute(command);
 			}
-
-			
 		}
-		return 0;
+	}
+
+}
+
+int main () {
+	string cmdLine;
+	bool hasExecuted = true;	
+	while(cmdLine != "exit") {
+		printPrompt();
+		cmdLine.clear();
+		getline(cin, cmdLine);
+		if (cmdLine == "exit") { //exits with command "exit"
+			exit(0);
+		}
+		else {
+			execCommand(cmdLine,hasExecuted);
+		}
+	}
+	return 0;
 }
