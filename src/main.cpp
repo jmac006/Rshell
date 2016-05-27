@@ -77,6 +77,28 @@ void parse_string(string commandLine, vector<string>&cmdArray) {
 					cmdArray.push_back(tokenString); // if it does not contain semi or hash push back word
 			}
 		}
+		else if(hasEParan(tokenString)){
+			if(tokenString.size() == 1){
+				cmdArray.push_back(tokenString);
+			}
+			else{
+				string paran = "(";
+				tokenString.erase(tokenString.begin() + tokenString.size() -1 ); //remove the semicolon at the end of word
+				cmdArray.push_back(tokenString); // push back word without semicolon
+				cmdArray.push_back(paran);// push back semi colon as its own string
+			}
+		}
+		else if(hasOParan(tokenString)){
+			if(tokenString.size() == 1){
+				cmdArray.push_back(tokenString);
+			}
+			else{
+				string paran = "(";
+				tokenString.erase(tokenString.begin()); // remove hashtag located at front of string
+				cmdArray.push_back(paran); // push back has as its own string
+				cmdArray.push_back(tokenString); // push back word 
+			}
+		}
 		
 		else{	
 			cmdArray.push_back(tokenString);
@@ -84,7 +106,7 @@ void parse_string(string commandLine, vector<string>&cmdArray) {
 		token = strtok(NULL, " ");
 	}
 	
-} 
+}  
 
 void printPrompt() {
 	char* user = getlogin();
