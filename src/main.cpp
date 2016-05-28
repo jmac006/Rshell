@@ -135,7 +135,20 @@ bool hasSemi(string s){ //checks for semicolon attached to a word;
 	}
 	return false; // if not found return -1
 }
+bool hasEParan(string s){ //checks for semicolon attached to a word;
 
+	if(s.at(s.size() - 1) == ')'){
+		return true; //return position of semi
+	}
+	return false; // if not found return -1
+}
+bool hasOParan(string s){ //checks for semicolon attached to a word;
+
+	if(s.at(0 == '('){
+		return true; //return position of semi
+	}
+	return false; // if not found return -1
+}
 bool hasHash(string s){
 	for(unsigned i = 0; i < s.size(); ++i){
 			if(s.at(i) == '#') {
