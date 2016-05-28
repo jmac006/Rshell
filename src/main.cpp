@@ -276,8 +276,16 @@ bool checkParenthesis(string command) {
 	return true;
 }
 
+void remove_parenthesis(string &s) {
+	for(unsigned i = 0; i < s.size(); i++) {
+		if(s.at(i) == '(' || s.at(i) == ')') {
+			s.erase(s.begin() + i);
+		}
+	}
+}
+
 void separateParenthesis(string command) { //parses the parenthesis and calls execCommand on those parsed strings
-	//bool didExecute = true;
+	bool didExecute = true;
 	checkParenthesis(command);
 	vector<string>parseCommands;
 	vector<string>commandList;
@@ -286,35 +294,38 @@ void separateParenthesis(string command) { //parses the parenthesis and calls ex
 	bool insideParenthesis = false;
 	for(unsigned i = 0; i < parseCommands.size();i++) {
 		comm += parseCommands.at(i);
+		if(i < parseCommands.size()-1) { //push individual command if we find a connector and we're not inside the parenthesis
+			if(isConnector(parseCommands.at(i+1)) && !insideParenthesis) {
+				remove_parenthesis(comm); //remove any parenthesis before pushing individual commands
+				commandList.push_back(comm);
+				comm.clear();
+			}
+		}
 		if(i < parseCommands.size()-1 && !hasEParen(parseCommands.at(i))) { //won't add a space to the end or after the end parenthesis
 			comm += " ";
 		}
+
 		if(hasOParen(parseCommands.at(i))) {
-			comm.erase(comm.begin());
 			insideParenthesis = true;
 		}
 		else if(hasEParen(parseCommands.at(i))) {
-			comm.pop_back();
+			remove_parenthesis(comm); //remove any parenthesis before pushing individual commands
 			commandList.push_back(comm);
 			comm.clear();
 			insideParenthesis = false;
 		}
-		else if(isConnector(parseCommands.at(i)) && !insideParenthesis) { //if it finds a connector, push the individual command
-			//i--;
-			commandList.push_back(comm);
-			comm.clear();
-		}
 		else if(i == parseCommands.size() - 1) {
+			remove_parenthesis(comm); //remove any parenthesis before pushing individual commands
 			commandList.push_back(comm);
 		}
 	}
-	cout << "Command size is: " << commandList.size() << endl;
-	cout << "Command List contains: ";
+	//cout << "Command size is: " << commandList.size() << endl;
+	//cout << "Command List contains: ";
+
+	//execute individual commands based on precedence
 	for (unsigned i = 0; i < commandList.size(); i++) {
-		//execCommand(commandList.at(i),didExecute);
-		cout << commandList.at(i) << endl;
+		execCommand(commandList.at(i),didExecute);
 	}
-	cout << endl;
 
 }
 
