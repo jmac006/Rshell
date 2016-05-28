@@ -6,6 +6,7 @@
 #include <string.h>
 #include <cstdlib>
 #include <vector>
+#include <stack>
 
 using namespace std;
 
@@ -45,7 +46,20 @@ bool execute(vector<string>commandArr) {
 bool hasSemi(string s);
 bool hasHash(string s);
 bool isConnector(string s);
+bool hasEParen(string s){ //checks for ')'
 
+	if(s.at(s.size() - 1) == ')'){
+		return true; //return position of semi
+	}
+	return false; // if not found return -1
+}
+bool hasOParen(string s){ //checks for '('
+
+	if(s.at(0) == '(') {
+		return true; //return position of semi
+	}
+	return false; // if not found return -1
+}
 void parse_string(string commandLine, vector<string>&cmdArray) {
 	
 	char* token; //split command into separate strings
@@ -77,18 +91,18 @@ void parse_string(string commandLine, vector<string>&cmdArray) {
 					cmdArray.push_back(tokenString); // if it does not contain semi or hash push back word
 			}
 		}
-		else if(hasEParan(tokenString)){
+		else if(hasEParen(tokenString)){
 			if(tokenString.size() == 1){
 				cmdArray.push_back(tokenString);
 			}
 			else{
-				string paran = "(";
+				string paran = ")";
 				tokenString.erase(tokenString.begin() + tokenString.size() -1 ); //remove the semicolon at the end of word
 				cmdArray.push_back(tokenString); // push back word without semicolon
 				cmdArray.push_back(paran);// push back semi colon as its own string
 			}
 		}
-		else if(hasOParan(tokenString)){
+		else if(hasOParen(tokenString)){
 			if(tokenString.size() == 1){
 				cmdArray.push_back(tokenString);
 			}
@@ -135,20 +149,7 @@ bool hasSemi(string s){ //checks for semicolon attached to a word;
 	}
 	return false; // if not found return -1
 }
-bool hasEParan(string s){ //checks for semicolon attached to a word;
 
-	if(s.at(s.size() - 1) == ')'){
-		return true; //return position of semi
-	}
-	return false; // if not found return -1
-}
-bool hasOParan(string s){ //checks for semicolon attached to a word;
-
-	if(s.at(0 == '('){
-		return true; //return position of semi
-	}
-	return false; // if not found return -1
-}
 bool hasHash(string s){
 	for(unsigned i = 0; i < s.size(); ++i){
 			if(s.at(i) == '#') {
@@ -251,9 +252,75 @@ void execCommand(string cmdLine, bool &hasExecuted) {
 
 }
 
+
+bool checkParenthesis(string command) {
+	stack<char>parenthesis;
+	for(unsigned i = 0; i < command.size(); i++) {
+		if(command.at(i) == '(') {
+			parenthesis.push('(');
+		}
+		else if(command.at(i) == ')') {
+			if(!parenthesis.empty()) {
+				parenthesis.pop();
+			}
+			else {
+				cout << "Parenthesis mismatch. Missing \'('." << endl;
+				return false;
+			}
+		}
+	}
+	if(!parenthesis.empty()) {
+		cout << "Parenthesis mismatch. Missing \')'." << endl;
+		return false;
+	}
+	return true;
+}
+
+void separateParenthesis(string command) { //parses the parenthesis and calls execCommand on those parsed strings
+	//bool didExecute = true;
+	checkParenthesis(command);
+	vector<string>parseCommands;
+	vector<string>commandList;
+	parse_string(command,parseCommands);
+	string comm;
+	bool insideParenthesis = false;
+	for(unsigned i = 0; i < parseCommands.size();i++) {
+		comm += parseCommands.at(i);
+		if(i < parseCommands.size()-1 && !hasEParen(parseCommands.at(i))) { //won't add a space to the end or after the end parenthesis
+			comm += " ";
+		}
+		if(hasOParen(parseCommands.at(i))) {
+			comm.erase(comm.begin());
+			insideParenthesis = true;
+		}
+		else if(hasEParen(parseCommands.at(i))) {
+			comm.pop_back();
+			commandList.push_back(comm);
+			comm.clear();
+			insideParenthesis = false;
+		}
+		else if(isConnector(parseCommands.at(i)) && !insideParenthesis) { //if it finds a connector, push the individual command
+			//i--;
+			commandList.push_back(comm);
+			comm.clear();
+		}
+		else if(i == parseCommands.size() - 1) {
+			commandList.push_back(comm);
+		}
+	}
+	cout << "Command size is: " << commandList.size() << endl;
+	cout << "Command List contains: ";
+	for (unsigned i = 0; i < commandList.size(); i++) {
+		//execCommand(commandList.at(i),didExecute);
+		cout << commandList.at(i) << endl;
+	}
+	cout << endl;
+
+}
+
 int main () {
 	string cmdLine;
-	bool hasExecuted = true;	
+	//bool hasExecuted = true;	
 	while(cmdLine != "exit") {
 		printPrompt();
 		cmdLine.clear();
@@ -262,7 +329,8 @@ int main () {
 			exit(0);
 		}
 		else {
-			execCommand(cmdLine,hasExecuted);
+			//execCommand(cmdLine,hasExecuted);
+			separateParenthesis(cmdLine);
 		}
 	}
 	return 0;
