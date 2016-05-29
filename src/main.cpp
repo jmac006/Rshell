@@ -47,7 +47,6 @@ bool execute(vector<string>commandArr) {
 bool executeTest(vector<string>commandArr){
 	struct stat file;
 	bool noflag;
-	cout << "entered" << endl;
 	if( commandArr.at(1) != "-e" && commandArr.at(1) != "-f" && commandArr.at(1) != "-d"){
 			noflag = true;
 	}
@@ -55,7 +54,6 @@ bool executeTest(vector<string>commandArr){
 			noflag = false;
 	}
 	if( commandArr.at(1) == "-e" || noflag ){ //does test -e or test with no specifications
-		cout << "entered -e part" << endl;
 		if( !noflag && stat(commandArr.at(2).c_str(), &file) == 0){
 			cout << "(True)" << endl;
 			return true;
@@ -287,6 +285,9 @@ void execCommand(string cmdLine, bool &hasExecuted) {
 					else{
 						hasExecuted = execute(command);
 					}
+				}
+				else {
+					hasExecuted = false;
 				}
 				command.clear();
 			}
