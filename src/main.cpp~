@@ -409,13 +409,7 @@ int main () {
 		}
 		else {
 			//execCommand(cmdLine,hasExecuted);
-//			separateParenthesis(cmdLine);
-			vector <string> cmdArr;
-			parse_string(cmdLine, cmdArr);
-			for (unsigned i = 0; i < cmdArr.size(); ++i){
-					cout << cmdArr.at(i) << endl;
-			}
-			executeTest(cmdArr);
+			separateParenthesis(cmdLine);
 		}
 	}
 	return 0;
