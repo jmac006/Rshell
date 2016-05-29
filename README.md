@@ -22,3 +22,4 @@ Bugs/Known Issues/Limitations
 * When using Hashtags for commenting, user must have a space in front of the hashtag
 * Did not use pedantic flag in Makefile since it called a single warning on our array of char pointers in execvp
 * User is able to use parenthesis, however the user cannot use multiple parenthesis within parenthesis in one command ( ex: ((echo a && echo b) || (echo c)) )
+* User cannot use a semi-colon at the end of a parenthesis ( ex: (echo a; echo b;) does not work however (echo a; echo b) does work )
