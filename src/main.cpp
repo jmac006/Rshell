@@ -254,7 +254,12 @@ void execCommand(string cmdLine, bool &hasExecuted) {
 				command.erase(command.begin()); //remove connector from command
 				command.pop_back(); //remove connector at the end
 				if (hasExecuted == true) {
-					hasExecuted = execute(command);
+					if(isTest(command.at(0))){
+						hasExecuted = executeTest(command);
+					}
+					else{
+						hasExecuted = execute(command);
+					}
 				}
 				command.clear();
 			}
@@ -263,7 +268,12 @@ void execCommand(string cmdLine, bool &hasExecuted) {
 				i--;
 				command.erase(command.begin()); //remove connector from command
 				command.pop_back(); //pop back twice
-				hasExecuted = execute(command);
+				if(isTest(command.at(0))){
+					hasExecuted = executeTest(command);
+				}
+				else{
+					hasExecuted = execute(command);
+				}
 				command.clear();
 			}
 			else if(command.at(0) == "||") {
@@ -271,7 +281,12 @@ void execCommand(string cmdLine, bool &hasExecuted) {
 				command.erase(command.begin()); //delete the connector
 				command.pop_back(); //remove connector at end of command
 				if (hasExecuted == false) { //if the previous command did not execute, run this command
-					hasExecuted = execute(command);
+					if(isTest(command.at(0))){
+						hasExecuted = executeTest(command);
+					}
+					else{
+						hasExecuted = execute(command);
+					}
 				}
 				command.clear();
 			}
@@ -282,7 +297,12 @@ void execCommand(string cmdLine, bool &hasExecuted) {
 			else if(!isConnector(command.at(0))){
 				i--;
 				command.pop_back(); //remove the connector
-				hasExecuted = execute(command);
+				if(isTest(command.at(0))){
+						hasExecuted = executeTest(command);
+				}
+				else{
+					hasExecuted = execute(command);
+				}
 				command.clear();
 			}
 		}
@@ -294,18 +314,33 @@ void execCommand(string cmdLine, bool &hasExecuted) {
 			if (command.size() != 0 && command.at(0) == "&&") {
 				command.erase(command.begin()); //delete connector
 				if (hasExecuted == true) {
-					hasExecuted = execute(command);
+					if(isTest(command.at(0))){
+						hasExecuted = executeTest(command);
+					}	
+					else{
+						hasExecuted = execute(command);
+					}
 				}
 			}
 			else if (command.size() != 0 && command.at(0) == "||") {
 				command.erase(command.begin());
 				if (hasExecuted == false) {
-					hasExecuted = execute(command);
+					if(isTest(command.at(0))){
+						hasExecuted = executeTest(command);
+					}
+					else{
+						hasExecuted = execute(command);
+					}
 				}
 			}
 			else if (command.size() != 0 && command.at(0) == ";") {
 				command.erase(command.begin());
-				hasExecuted = execute(command);
+				if(isTest(command.at(0))){
+						hasExecuted = executeTest(command);
+				}
+				else{
+					hasExecuted = execute(command);
+				}
 				break;
 			}
 			else if (command.size() != 0 && command.at(0) == "#") {
@@ -313,7 +348,12 @@ void execCommand(string cmdLine, bool &hasExecuted) {
 				return;
 			}
 			else {
-				hasExecuted = execute(command);
+				if(isTest(command.at(0))){
+					hasExecuted = executeTest(command);
+				}
+				else{
+					hasExecuted = execute(command);
+				}
 			}
 		}
 	}
