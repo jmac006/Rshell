@@ -225,6 +225,13 @@ bool isTest(string s){ //checks if command is a test case
 	return false;
 }
 
+bool isRedirect(string s){
+	if(s == "|" || s == ">" || s == ">>" || s == "<"){
+		return true;
+	}
+		    return false;
+}
+
 void execCommand(string cmdLine, bool &hasExecuted) {
 	vector<string>cmdArr; //holds the whole command line (parsed)
 	vector<string>command; //holds individual commands to run in execute() function

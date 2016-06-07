@@ -47,7 +47,6 @@ bool execute(vector<string>commandArr) {
 bool executeTest(vector<string>commandArr){
 	struct stat file;
 	bool noflag;
-	cout << "entered" << endl;
 	if( commandArr.at(1) != "-e" && commandArr.at(1) != "-f" && commandArr.at(1) != "-d"){
 			noflag = true;
 	}
@@ -55,7 +54,6 @@ bool executeTest(vector<string>commandArr){
 			noflag = false;
 	}
 	if( commandArr.at(1) == "-e" || noflag ){ //does test -e or test with no specifications
-		cout << "entered -e part" << endl;
 		if( !noflag && stat(commandArr.at(2).c_str(), &file) == 0){
 			cout << "(True)" << endl;
 			return true;
@@ -227,6 +225,13 @@ bool isTest(string s){ //checks if command is a test case
 	return false;
 }
 
+bool isRedirect(string s){
+	if(s == "|" || s == ">" || s == ">>" || s == "<" || s == "<<"){
+		return true;
+	}
+		    return false;
+}
+
 void execCommand(string cmdLine, bool &hasExecuted) {
 	vector<string>cmdArr; //holds the whole command line (parsed)
 	vector<string>command; //holds individual commands to run in execute() function
@@ -288,6 +293,9 @@ void execCommand(string cmdLine, bool &hasExecuted) {
 						hasExecuted = execute(command);
 					}
 				}
+				else {
+					hasExecuted = false;
+				}
 				command.clear();
 			}
 			else if(command.at(0) == "#" && command.size() == 1) {
@@ -314,18 +322,33 @@ void execCommand(string cmdLine, bool &hasExecuted) {
 			if (command.size() != 0 && command.at(0) == "&&") {
 				command.erase(command.begin()); //delete connector
 				if (hasExecuted == true) {
-					hasExecuted = execute(command);
+					if(isTest(command.at(0))){
+						hasExecuted = executeTest(command);
+					}	
+					else{
+						hasExecuted = execute(command);
+					}
 				}
 			}
 			else if (command.size() != 0 && command.at(0) == "||") {
 				command.erase(command.begin());
 				if (hasExecuted == false) {
-					hasExecuted = execute(command);
+					if(isTest(command.at(0))){
+						hasExecuted = executeTest(command);
+					}
+					else{
+						hasExecuted = execute(command);
+					}
 				}
 			}
 			else if (command.size() != 0 && command.at(0) == ";") {
 				command.erase(command.begin());
-				hasExecuted = execute(command);
+				if(isTest(command.at(0))){
+						hasExecuted = executeTest(command);
+				}
+				else{
+					hasExecuted = execute(command);
+				}
 				break;
 			}
 			else if (command.size() != 0 && command.at(0) == "#") {
@@ -333,7 +356,12 @@ void execCommand(string cmdLine, bool &hasExecuted) {
 				return;
 			}
 			else {
-				hasExecuted = execute(command);
+				if(isTest(command.at(0))){
+					hasExecuted = executeTest(command);
+				}
+				else{
+					hasExecuted = execute(command);
+				}
 			}
 		}
 	}
