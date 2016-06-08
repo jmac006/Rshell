@@ -4,7 +4,7 @@ Assignment created by Justin Mac, and Satkaran Tamber
 
 Overview
 ------------
-This project is a simple command shell similar to the linux terminal. It is capable of reading single line and multiple line input commands, including semi-colons, || , and &&. This command shell is also capable of reading parenthesis. This is the fourth assignment, assigned by Brian Crites at University of California, Riverside. 
+This project is a simple command shell similar to the linux terminal. It is capable of reading single line and multiple line input commands, including semi-colons, || , and &&. This command shell is also capable of reading parenthesis. Redirection (>, >>, <, |) only works with basic commands. This is the fourth assignment, assigned by Brian Crites at University of California, Riverside. 
 
 Installation
 --------------
@@ -23,3 +23,4 @@ Bugs/Known Issues/Limitations
 * Did not use pedantic flag in Makefile since it called a single warning on our array of char pointers in execvp
 * User is able to use parenthesis, however the user cannot use multiple parenthesis within parenthesis in one command ( ex: ((echo a && echo b) || (echo c)) )
 * User cannot use a semi-colon at the end of a parenthesis ( ex: (echo a; echo b;) does not work however (echo a; echo b) does work )
+* Unable to pipe multiple commands together
