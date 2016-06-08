@@ -145,6 +145,50 @@ string convertToString(vector<string>command) {
 }
 
 void execCommand(string cmdLine, bool &hasExecuted);
+bool isRedirect(string s);
+
+void pipeCommand(vector<string>cmd1, vector<string>cmd2) {
+	char* command1[cmd1.size() + 1];
+	for (int i = 0; i < static_cast<int>(cmd1.size()); i++) { //convert the vector into a char* array for execvp
+		command1[i] = (char*)cmd1.at(i).c_str();	
+	}
+	command1[cmd1.size()] = NULL; //set last value to NULL for execvp
+
+	char* command2[cmd2.size() + 1];
+	for (int i = 0; i < static_cast<int>(cmd2.size()); i++) { //convert the vector into a char* array for execvp
+		command2[i] = (char*)cmd2.at(i).c_str();	
+	}
+	command2[cmd2.size()] = NULL; //set last value to NULL for execvp
+				
+  	int fds[2]; //file descriptors
+  	pipe(fds);
+  	pid_t pid;
+
+	
+	if (fork() == 0) { // child process #1
+		dup2(fds[0], 0); // change stdin to fds[0]
+		close(fds[1]); //close the end of the pipe
+
+		//Execute the second command
+		execvp(command2[0], command2);
+		perror("execvp failed");
+	} 
+	else if ((pid = fork()) == 0) { // child process #2
+		// Reassign stdout to fds[1] end of pipe.
+		dup2(fds[1], 1); //
+
+		// Not going to read in this child process, so we can close this end
+		// of the pipe.
+		close(fds[0]);
+
+		// Execute the first command.
+		execvp(command1[0], command1);
+		perror("execvp failed");
+	} 
+	else { //parent process
+		waitpid(pid, NULL, 0);
+	}
+}
 
 bool executeRedirect(vector<string>commandArr) {
 	//save the stdin and stdout, and use dup to change the stdin/stdout to a file
@@ -203,11 +247,16 @@ bool executeRedirect(vector<string>commandArr) {
 			execCommand(comm,didExecute);
 			dup2(saveSTD[0],0); //restore the stdin
 		}
-		/*else if(hasPipe(commandArr.at(i)) && command.size() > 1) {
-
-		}*/
-		else {
-			return false;
+		else if(hasPipe(commandArr.at(i)) && command.size() > 1) {
+			vector<string>command2;
+			command.pop_back();
+			++i;
+			for (unsigned j = i; j < commandArr.size(); j++) {
+				if(!isRedirect(commandArr.at(j))) {
+					command2.push_back(commandArr.at(j));
+				}
+			}
+			pipeCommand(command,command2);
 		}
 	}
 	return true;
