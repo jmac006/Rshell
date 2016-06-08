@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <string.h>
 #include <cstdlib>
+#include <fcntl.h> //used for file descriptor
 #include <vector>
 #include <stack>
 
@@ -103,6 +104,115 @@ bool executeTest(vector<string>commandArr){
 	}
 	return false;
 }
+
+bool hasOutputRedirect(string s) {
+	if(s == ">") {
+		return true;
+	}
+	return false;
+}
+
+bool hasAppendRedirect(string s) {
+	if(s == ">>") {
+		return true;
+	}
+	return false;
+}
+
+bool hasInputRedirect(string s) {
+	if(s == "<") {
+		return true;
+	}
+	return false;
+}
+
+bool hasPipe(string s) {
+	if(s == "|") {
+		return true;
+	}
+	return false;
+}
+
+string convertToString(vector<string>command) {
+	string s;
+	for(unsigned i = 0; i < command.size(); i++) {
+		s += command.at(i);
+		if(i < command.size()-1) {
+			s += " ";
+		}
+	}
+	return s;
+}
+
+void execCommand(string cmdLine, bool &hasExecuted);
+
+bool executeRedirect(vector<string>commandArr) {
+	//save the stdin and stdout, and use dup to change the stdin/stdout to a file
+	int saveSTD[2]; //size of 2 to save stdin and stdout
+	vector<string>command; //holds individual commands
+	for(unsigned i = 0; i < commandArr.size(); i++) {
+		command.push_back(commandArr.at(i));
+		if(hasOutputRedirect(commandArr.at(i)) && command.size() > 1) {
+			command.pop_back(); //pops the redirection off
+			char file[commandArr.at(i+1).size()];
+			strcpy(file,commandArr.at(i+1).c_str());
+			i++;
+			int pfd;
+			if((pfd = open(file, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IROTH | S_IRGRP )) == -1) {
+				perror("Couldn't open file");
+				exit(1);
+			}
+			saveSTD[1] = dup(1); //saves the stdout to restore later
+			dup2(pfd,1); //changed output to the file directory
+			string comm = convertToString(command);
+			bool didExecute = true;
+			execCommand(comm,didExecute);
+			dup2(saveSTD[1],1); //restore the stdout
+		}
+		else if(hasAppendRedirect(commandArr.at(i)) && command.size() > 1) {
+			command.pop_back(); //pops the redirection off
+			char file[commandArr.at(i+1).size()];
+			strcpy(file,commandArr.at(i+1).c_str());
+			i++;
+			int pfd;
+			if((pfd = open(file, O_RDWR | O_APPEND, S_IRUSR | S_IWUSR | S_IROTH | S_IRGRP )) == -1) {
+				perror("Couldn't open file");
+				exit(1);
+			}
+			saveSTD[1] = dup(1); //saves the stdout to restore later
+			dup2(pfd,1); //changed output to the file directory
+			string comm = convertToString(command);
+			bool didExecute = true;
+			execCommand(comm,didExecute);
+			dup2(saveSTD[1],1); //restore the stdout
+		}
+		else if(hasInputRedirect(commandArr.at(i)) && command.size() > 1) {
+			command.pop_back();
+			char file[commandArr.at(i+1).size()];
+			strcpy(file,commandArr.at(i+1).c_str());
+			i++;
+			int pfd;
+			if((pfd = open(file, O_RDWR | O_APPEND, S_IRUSR | S_IWUSR | S_IROTH | S_IRGRP )) == -1) {
+				perror("Couldn't open file");
+				exit(1);
+			}
+			saveSTD[0] = dup(0); //saves the stdin to restore later
+			dup2(pfd,0); //changed input to the file directory
+			string comm = convertToString(command);
+			bool didExecute = true;
+			execCommand(comm,didExecute);
+			dup2(saveSTD[0],0); //restore the stdin
+		}
+		/*else if(hasPipe(commandArr.at(i)) && command.size() > 1) {
+
+		}*/
+		else {
+			return false;
+		}
+	}
+	return true;
+}
+
 bool hasSemi(string s);
 bool hasHash(string s);
 bool isConnector(string s);
@@ -225,12 +335,24 @@ bool isTest(string s){ //checks if command is a test case
 	return false;
 }
 
+
+
 bool isRedirect(string s){
 	if(s == "|" || s == ">" || s == ">>" || s == "<"){
 		return true;
 	}
-		    return false;
+	return false;
 }
+
+bool checkRedirect(vector<string>s) {
+	for(unsigned i = 0; i < s.size(); i++) {
+		if (isRedirect(s.at(i))) {
+			return true;
+		}
+	}
+	return false;
+}
+
 
 void execCommand(string cmdLine, bool &hasExecuted) {
 	vector<string>cmdArr; //holds the whole command line (parsed)
@@ -242,6 +364,7 @@ void execCommand(string cmdLine, bool &hasExecuted) {
 
 	parse_string(cmdLine, cmdArr);
 
+	bool hasRedirect = false;
 	
 	for (unsigned i = 0; i < cmdArr.size(); i++) { //start where we left off, only executes when there is two connectors in between a command
 		command.push_back(cmdArr.at(i));
@@ -249,7 +372,9 @@ void execCommand(string cmdLine, bool &hasExecuted) {
 		/*if (hasHash(cmdArr.at(i))) { //if it is a comment, break out of the loop
 			break;
 		}*/
+
 		if(isConnector(cmdArr.at(i)) && command.size() > 1) { //if there's more commands and the next command is a connector
+			hasRedirect = checkRedirect(command);
 			if(command.at(1) == "#") { //handles comments after connector
 					break;
 			}
@@ -261,6 +386,9 @@ void execCommand(string cmdLine, bool &hasExecuted) {
 				if (hasExecuted == true) {
 					if(isTest(command.at(0))){
 						hasExecuted = executeTest(command);
+					}
+					else if(hasRedirect) {
+						hasExecuted = executeRedirect(command);
 					}
 					else{
 						hasExecuted = execute(command);
@@ -276,6 +404,9 @@ void execCommand(string cmdLine, bool &hasExecuted) {
 				if(isTest(command.at(0))){
 					hasExecuted = executeTest(command);
 				}
+				else if(hasRedirect) {
+					hasExecuted = executeRedirect(command);
+				}
 				else{
 					hasExecuted = execute(command);
 				}
@@ -288,6 +419,9 @@ void execCommand(string cmdLine, bool &hasExecuted) {
 				if (hasExecuted == false) { //if the previous command did not execute, run this command
 					if(isTest(command.at(0))){
 						hasExecuted = executeTest(command);
+					}
+					else if(hasRedirect) {
+						hasExecuted = executeRedirect(command);
 					}
 					else{
 						hasExecuted = execute(command);
@@ -302,19 +436,24 @@ void execCommand(string cmdLine, bool &hasExecuted) {
 
 				break; //don't do anything if command has comments
 			}
-			else if(!isConnector(command.at(0))){
+			else if(!isConnector(command.at(0))){ //executes the very first command in cmdArr
 				i--;
 				command.pop_back(); //remove the connector
 				if(isTest(command.at(0))){
-						hasExecuted = executeTest(command);
+					hasExecuted = executeTest(command);
+				}
+				else if(hasRedirect) {
+					hasExecuted = executeRedirect(command);
 				}
 				else{
 					hasExecuted = execute(command);
 				}
 				command.clear();
 			}
+			hasRedirect = false;
 		}
 		else if(i == cmdArr.size()-1) { //if this is the last command
+			hasRedirect = checkRedirect(command);
 			if(isConnector(command.at(command.size()-1))) { //if there is a dangling connector at the end remove it
 				command.pop_back();
 				break;
@@ -324,6 +463,9 @@ void execCommand(string cmdLine, bool &hasExecuted) {
 				if (hasExecuted == true) {
 					if(isTest(command.at(0))){
 						hasExecuted = executeTest(command);
+					}
+					else if(hasRedirect) {
+						hasExecuted = executeRedirect(command);
 					}	
 					else{
 						hasExecuted = execute(command);
@@ -336,6 +478,9 @@ void execCommand(string cmdLine, bool &hasExecuted) {
 					if(isTest(command.at(0))){
 						hasExecuted = executeTest(command);
 					}
+					else if(hasRedirect) {
+						hasExecuted = executeRedirect(command);
+					}
 					else{
 						hasExecuted = execute(command);
 					}
@@ -344,7 +489,10 @@ void execCommand(string cmdLine, bool &hasExecuted) {
 			else if (command.size() != 0 && command.at(0) == ";") {
 				command.erase(command.begin());
 				if(isTest(command.at(0))){
-						hasExecuted = executeTest(command);
+					hasExecuted = executeTest(command);
+				}
+				else if(hasRedirect) {
+					hasExecuted = executeRedirect(command);
 				}
 				else{
 					hasExecuted = execute(command);
@@ -359,13 +507,15 @@ void execCommand(string cmdLine, bool &hasExecuted) {
 				if(isTest(command.at(0))){
 					hasExecuted = executeTest(command);
 				}
+				else if(hasRedirect) {
+					hasExecuted = executeRedirect(command);
+				}
 				else{
 					hasExecuted = execute(command);
 				}
 			}
 		}
 	}
-
 }
 
 
