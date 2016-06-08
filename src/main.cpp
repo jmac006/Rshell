@@ -155,7 +155,7 @@ void pipeCommand(vector<string>cmd1, vector<string>cmd2) {
 	command1[cmd1.size()] = NULL; //set last value to NULL for execvp
 
 	char* command2[cmd2.size() + 1];
-	for (int i = 0; i < static_cast<int>(cmd2.size()); i++) { //convert the vector into a char* array for execvp
+	for (int i = 0; i < static_cast<int>(cmd2.size()); i++) { //convert the second command into a char* array for execvp
 		command2[i] = (char*)cmd2.at(i).c_str();	
 	}
 	command2[cmd2.size()] = NULL; //set last value to NULL for execvp
@@ -174,14 +174,11 @@ void pipeCommand(vector<string>cmd1, vector<string>cmd2) {
 		perror("execvp failed");
 	} 
 	else if ((pid = fork()) == 0) { // child process #2
-		// Reassign stdout to fds[1] end of pipe.
-		dup2(fds[1], 1); //
+		dup2(fds[1], 1); //change stdout to file output
 
-		// Not going to read in this child process, so we can close this end
-		// of the pipe.
-		close(fds[0]);
+		close(fds[0]); //close the pipe, not going to read child process
 
-		// Execute the first command.
+		//Execute the first command
 		execvp(command1[0], command1);
 		perror("execvp failed");
 	} 
