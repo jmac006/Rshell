@@ -7,6 +7,7 @@ ps aux | grep chome && (echo hi > file.txt) #pipe command with > redirection
 (echo Hello >> file.txt) && ps aux | grep chrome #pipe command with appending redirection
 ls -l | grep src
 ls | wc
+ls | cat
 exit
 EOF
 printf "\n"
